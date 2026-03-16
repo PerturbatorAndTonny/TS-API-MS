@@ -13,18 +13,30 @@ const users = [
 ];
 
 app.get('/users/:id', (req, res) => {
-  const userId = parseInt(req.params.id, 10);
+  try {
+    const userId = parseInt(req.params.id, 10);
 
-  if (isNaN(userId)) {
-    return res.status(400).json({ error: 'Invalid user ID' });
+    if (isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    const user = users.find(user => user.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: error.response.data || 'Failed to fetch order details'
+      });
+    } else {
+      return res.status(500).json({
+        error: 'Failed to fetch order details'
+      });
+    }
   }
-
-  const user = users.find(user => user.id === userId);
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' });
-  }
-
-  res.json(user);
 });
 
 
